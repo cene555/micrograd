@@ -1,3 +1,5 @@
+import math
+
 
 class Value:
     """ stores a single scalar value and its gradient """
@@ -33,11 +35,12 @@ class Value:
         return out
 
     def __pow__(self, other):
-        assert isinstance(other, (int, float)), "only supporting int/float powers for now"
+        other = other if isinstance(other, Value) else Value(other)
         out = Value(self.data**other, (self,), f'**{other}')
 
         def _backward():
             self.grad += (other * self.data**(other-1)) * out.grad
+            other.grad += (self.data**other.data * math.log(self.data)) * out.grad
         out._backward = _backward
 
         return out
